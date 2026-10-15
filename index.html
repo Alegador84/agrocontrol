@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Registro de temperatura, humedad, luminosidad y pH del invernadero con reportes en español e inglés.">
+  <title>AgroControl Chaves | Control del invernadero</title>
+  <style>
+   :root {
+  --fondo: #f4f7f8;
+  --tarjeta: #ffffff;
+  --verde: #28536B;
+  --verde-claro: #e1edf3;
+  --terracota: #cc8864;
+  --texto: #293b46;
+  --suave: #687a83;
+  --borde: #d7e2e6;
+}
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--fondo); color: var(--texto); font-family: Arial, Helvetica, sans-serif; line-height: 1.5; }
+    .cabecera { max-width: 1100px; padding: 25px 24px 0; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+    .marca { color: var(--verde); font-size: 20px; font-weight: 800; letter-spacing: .2px; }
+    .marca span { color: var(--terracota); margin-right: 8px; }
+    nav { display: flex; gap: 20px; }
+    nav a { color: var(--verde); font-weight: 600; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    main { max-width: 1100px; margin: 0 auto; padding: 35px 24px 55px; }
+    .intro { margin-bottom: 28px; }
+    .sobrelinea { color: var(--terracota); text-transform: uppercase; font-size: 12px; font-weight: 800; letter-spacing: 2px; }
+    h1 { margin: 10px 0; color: var(--verde); font-size: clamp(32px, 5vw, 46px); line-height: 1.15; }
+    .intro p { color: var(--suave); margin: 0; max-width: 730px; }
+    .tarjeta { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 15px; padding: 30px; box-shadow: 0 7px 23px rgba(43, 56, 47, .05); }
+    .tarjeta-cabeza { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 26px; }
+    h2 { color: var(--verde); font-size: 21px; margin: 0; }
+    .sello { padding: 6px 12px; border-radius: 5px; background: var(--verde-claro); color: var(--verde); font-size: 12px; font-weight: 700; }
+    .cuadricula { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 21px 25px; }
+    label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    input, select, textarea { background: white; border: 1px solid #ccd4c9; color: var(--texto); border-radius: 8px; padding: 12px 13px; width: 100%; font: inherit; }
+    input:focus, select:focus, textarea:focus { outline: 2px solid #b0c7b6; outline-offset: 1px; border-color: var(--verde); }
+    small { display: block; font-size: 12px; color: var(--suave); margin-top: 6px; }
+    .idioma { border-top: 1px solid var(--borde); margin-top: 27px; padding-top: 23px; display: flex; align-items: center; gap: 20px; justify-content: space-between; }
+    .idioma label { margin: 0; }
+    .idioma select { max-width: 285px; }
+    .acciones { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
+    button { padding: 11px 19px; font: inherit; font-weight: 700; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+    button:disabled { cursor: not-allowed; opacity: .48; }
+    .principal { background: var(--verde); color: white; }
+    .principal:hover:not(:disabled) { background: #2c493a; }
+    .secundario { background: var(--verde-claro); color: var(--verde); }
+    .secundario:hover:not(:disabled) { background: #d3e2d4; }
+    .neutro { background: white; border-color: var(--borde); color: var(--texto); }
+    .neutro:hover:not(:disabled) { background: #eeeae3; }
+    .reporte { margin-top: 30px; }
+    textarea { min-height: 145px; resize: vertical; }
+    .mensaje { color: var(--verde); margin-top: 18px; min-height: 24px; font-size: 14px; }
+    .mensaje.error { color: #a03c2f; }
+    details { border-top: 1px solid var(--borde); padding-top: 16px; margin-top: 22px; color: var(--suave); font-size: 13px; }
+    details summary { cursor: pointer; color: var(--verde); font-weight: 700; }
+    details button { margin-top: 10px; }
+    .nota { color: var(--suave); border-left: 3px solid var(--terracota); padding-left: 15px; margin: 24px 2px; font-size: 13px; }
+    footer { margin-top: 30px; color: var(--suave); font-size: 13px; text-align: center; }
+    @media (max-width: 680px) {
+      .cuadricula { grid-template-columns: 1fr; }
+      .idioma { display: block; }
+      .idioma select { margin-top: 10px; max-width: 100%; }
+      .tarjeta { padding: 20px; }
+      .acciones button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="cabecera">
+    <div class="marca"><span>✦</span> AgroControl</div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <span class="sobrelinea">Invernadero y cultivo</span>
+      <h1>Control del invernadero</h1>
+      <p>Registra las condiciones del cultivo</p>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="titulo-registro">
+      <div class="tarjeta-cabeza">
+        <h2 id="titulo-registro">Registro de condiciones</h2>
+        <span class="sello">Registro manual</span>
+      </div>
+
+      <div class="cuadricula">
+        <div>
+          <label for="temperatura">Temperatura (°C)</label>
+          <input id="temperatura" type="number" min="-30" max="70" step="0.1" placeholder="24">
+          <small>Referencia del ejercicio: entre 18 y 30 °C</small>
+        </div>
+        <div>
+          <label for="humedad">Humedad ambiental (%)</label>
+          <input id="humedad" type="number" min="0" max="100" step="0.1" placeholder="40">
+          <small>Referencia del ejercicio: entre 35 y 75 %</small>
+        </div>
+        <div>
+          <label for="luminosidad">Luminosidad relativa (%)</label>
+          <input id="luminosidad" type="number" min="0" max="100" step="0.1" placeholder="70">
+          <small>Escala de ejemplo: entre 30 y 85 %</small>
+        </div>
+        <div>
+          <label for="ph">pH del sustrato</label>
+          <input id="ph" type="number" min="0" max="14" step="0.1" placeholder="6.2">
+          <small>Referencia del ejercicio: entre 5,5 y 7,0</small>
+        </div>
+      </div>
+
+      <div class="idioma">
+        <label for="idioma">Idioma del reporte</label>
+        <select id="idioma">
+          <option value="es">Español (Colombia)</option>
+          <option value="en">English (United States)</option>
+        </select>
+      </div>
+
+      <div class="acciones">
+        <button id="leerDatos" class="secundario" type="button">Cargar valores de ejemplo</button>
+        <button id="generarReporte" class="principal" type="button">Generar reporte</button>
+      </div>
+
+      <div class="reporte">
+        <label for="reporte">Resumen de las condiciones</label>
+        <textarea id="reporte" readonly placeholder="Aquí aparecerá el reporte del invernadero..."></textarea>
+      </div>
+
+      <div class="acciones">
+        <button id="escucharReporte" class="principal" type="button" disabled>Escuchar reporte</button>
+        <button id="detenerAudio" class="neutro" type="button">Detener audio</button>
+      </div>
+
+      <p id="estado" class="mensaje" role="status" aria-live="polite">Ingresa los datos o carga los valores de ejemplo.</p>
+
+      <details>
+        <summary>Opciones adicionales de audio</summary>
+        <p>Si configuraste Microsoft Azure Speech con Apache y PHP, también puedes usar su servicio de voz.</p>
+        <button id="escucharAzure" class="secundario" type="button" disabled>Escuchar con Microsoft Azure</button>
+      </details>
+    </section>
+
+    <p class="nota">
+  Este sistema permite registrar y analizar las condiciones
+  de temperatura, humedad, luminosidad y pH del invernadero,
+  facilitando el seguimiento de las variables y la
+  identificación de posibles cambios en el ambiente del cultivo.
+</p>
+    <footer>
+  Bitácora Verde | Control del invernadero
+  <p>Diseñado y desarrollado por: Alejandro Chaves</p>
+  <p>2026</p>
+</footer>
+  </main>
+
+  <script>
+    "use strict";
+    const rangos = {
+      temperatura: [18, 30],
+      humedad: [35, 75],
+      luminosidad: [30, 85],
+      ph: [5.5, 7]
+    };
+    const limites = {
+      temperatura: [-30, 70],
+      humedad: [0, 100],
+      luminosidad: [0, 100],
+      ph: [0, 14]
+    };
+    const nombres = {
+      es: { temperatura: "temperatura", humedad: "humedad ambiental", luminosidad: "luminosidad relativa", ph: "pH del sustrato" },
+      en: { temperatura: "temperature", humedad: "relative humidity", luminosidad: "relative light intensity", ph: "substrate pH" }
+    };
+    const campos = Object.fromEntries(Object.keys(rangos).map(k => [k, document.getElementById(k)]));
+    const idioma = document.getElementById("idioma");
+    const reporte = document.getElementById("reporte");
+    const estado = document.getElementById("estado");
+    const escuchar = document.getElementById("escucharReporte");
+    const escucharAzure = document.getElementById("escucharAzure");
+    let audioAzure = null;
+    let urlAzure = null;
+
+    function aviso(es, en, error = false) {
+      estado.textContent = idioma.value === "en" ? en : es;
+      estado.classList.toggle("error", error);
+    }
+
+    function detener() {
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      if (audioAzure) { audioAzure.pause(); audioAzure = null; }
+      if (urlAzure) { URL.revokeObjectURL(urlAzure); urlAzure = null; }
+    }
+
+    function desactivarReporte() {
+      detener();
+      reporte.value = "";
+      escuchar.disabled = true;
+      escucharAzure.disabled = true;
+      aviso("Datos actualizados. Genera un nuevo reporte.", "Readings changed. Generate a new report.");
+    }
+
+    function clasificar(valor, limitesVariable) {
+      if (valor < limitesVariable[0]) return "baja";
+      if (valor > limitesVariable[1]) return "alta";
+      return "normal";
+    }
+
+    function prepararDatos() {
+      const datos = {};
+      for (const nombre of Object.keys(campos)) {
+        const texto = campos[nombre].value.trim();
+        const titulo = nombres[idioma.value][nombre];
+        if (!texto) throw new Error(idioma.value === "en" ? `Complete the ${titulo} field.` : `Completa el campo ${titulo}.`);
+        const valor = Number(texto);
+        if (!Number.isFinite(valor)) throw new Error(idioma.value === "en" ? `Invalid value for ${titulo}.` : `El valor de ${titulo} no es válido.`);
+        if (valor < limites[nombre][0] || valor > limites[nombre][1]) {
+          throw new Error(idioma.value === "en" ? `${titulo} must be between ${limites[nombre][0]} and ${limites[nombre][1]}.` : `${titulo} debe estar entre ${limites[nombre][0]} y ${limites[nombre][1]}.`);
+        }
+        datos[nombre] = valor;
+      }
+      return datos;
+    }
+
+    function escribirReporte(datos, lang) {
+      const condiciones = Object.fromEntries(Object.keys(datos).map(k => [k, clasificar(datos[k], rangos[k])]));
+      const todoBien = Object.values(condiciones).every(x => x === "normal");
+      if (lang === "en") {
+        const estadoEn = x => ({ baja: "low", normal: "normal", alta: "high" })[x];
+        const texto = `Greenhouse report. Temperature: ${datos.temperatura} degrees Celsius (${estadoEn(condiciones.temperatura)}). ` +
+          `Relative humidity: ${datos.humedad} percent (${estadoEn(condiciones.humedad)}). ` +
+          `Relative light intensity: ${datos.luminosidad} percent (${estadoEn(condiciones.luminosidad)}). ` +
+          `Substrate pH: ${datos.ph} (${estadoEn(condiciones.ph)}). `;
+        if (todoBien) return texto + "All four readings are within the reference ranges used in this exercise.";
+        return texto + "Some readings are outside the reference ranges. Check environmental conditions and the requirements of the crop.";
+      }
+      const num = n => String(n).replace(".", ",");
+      const phEstado = condiciones.ph === "baja" ? "bajo" : condiciones.ph === "alta" ? "alto" : "normal";
+      const texto = `Reporte del invernadero. Temperatura: ${num(datos.temperatura)} grados Celsius (${condiciones.temperatura}). ` +
+        `Humedad ambiental: ${num(datos.humedad)} por ciento (${condiciones.humedad}). ` +
+        `Luminosidad relativa: ${num(datos.luminosidad)} por ciento (${condiciones.luminosidad}). ` +
+        `pH del sustrato: ${num(datos.ph)} (${phEstado}). `;
+      if (todoBien) return texto + "Las cuatro lecturas están dentro de los rangos de referencia utilizados en este ejercicio.";
+      return texto + "Hay lecturas fuera de los rangos de referencia. Conviene revisar las condiciones ambientales y las necesidades del cultivo.";
+    }
+
+    function generar() {
+      detener();
+      try {
+        reporte.value = escribirReporte(prepararDatos(), idioma.value);
+        escuchar.disabled = false;
+        escucharAzure.disabled = false;
+        aviso("Reporte generado correctamente.", "Report generated successfully.");
+      } catch (error) {
+        reporte.value = "";
+        escuchar.disabled = true;
+        escucharAzure.disabled = true;
+        estado.textContent = error.message;
+        estado.classList.add("error");
+      }
+    }
+
+    document.getElementById("leerDatos").addEventListener("click", () => {
+      campos.temperatura.value = "24";
+      campos.humedad.value = "40";
+      campos.luminosidad.value = "70";
+      campos.ph.value = "6.2";
+      generar();
+    });
+    document.getElementById("generarReporte").addEventListener("click", generar);
+    Object.values(campos).forEach(campo => campo.addEventListener("input", desactivarReporte));
+    idioma.addEventListener("change", () => reporte.value ? generar() : desactivarReporte());
+
+    escuchar.addEventListener("click", () => {
+      if (!reporte.value) return;
+      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+        aviso("Este navegador no admite lectura de voz.", "This browser does not support speech playback.", true);
+        return;
+      }
+      detener();
+      const voz = new SpeechSynthesisUtterance(reporte.value);
+      voz.lang = idioma.value === "en" ? "en-US" : "es-CO";
+      voz.rate = 0.95;
+      voz.onstart = () => aviso("Reproduciendo reporte...", "Playing the report...");
+      voz.onend = () => aviso("Lectura finalizada.", "Playback finished.");
+      voz.onerror = () => aviso("No se pudo reproducir la voz.", "Speech playback failed.", true);
+      window.speechSynthesis.speak(voz);
+    });
+
+    document.getElementById("detenerAudio").addEventListener("click", () => {
+      detener();
+      aviso("Audio detenido.", "Playback stopped.");
+    });
+
+    escucharAzure.addEventListener("click", async () => {
+      if (!reporte.value) return;
+      if (location.protocol === "file:") {
+        aviso("Para usar Azure debes abrir el proyecto mediante Apache y configurar speech.php.", "Azure requires Apache and a configured speech.php file.", true);
+        return;
+      }
+      detener();
+      escucharAzure.disabled = true;
+      aviso("Conectando con Microsoft Azure...", "Connecting to Microsoft Azure...");
+      try {
+        const respuesta = await fetch("speech.php", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ texto: reporte.value, idioma: idioma.value })
+        });
+        if (!respuesta.ok) {
+          let detalle = "";
+          if ((respuesta.headers.get("content-type") || "").includes("application/json")) {
+            const error = await respuesta.json();
+            detalle = error.error || "";
+          }
+          throw new Error(detalle || "Comprueba Apache, PHP y la configuración de Azure.");
+        }
+        if (!(respuesta.headers.get("content-type") || "").includes("audio/")) throw new Error("El servidor no devolvió audio.");
+        urlAzure = URL.createObjectURL(await respuesta.blob());
+        audioAzure = new Audio(urlAzure);
+        audioAzure.onended = () => { detener(); aviso("Audio de Azure finalizado.", "Azure playback finished."); };
+        await audioAzure.play();
+        aviso("Reproduciendo audio de Azure.", "Playing Azure audio.");
+      } catch (error) {
+        aviso(`Azure: ${error.message}`, `Azure: ${error.message}`, true);
+      } finally {
+        escucharAzure.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
